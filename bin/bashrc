@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-DEBUG=true
+DEBUG=false
 
 BREW_BASE="/usr/local/bin"
-BASHRC_DIR=""
+BASHRC_LOCAL="${HOME}/.config/environment"
+BASHRC_HOME=""
 
 #
 # Core bash settings
@@ -19,10 +20,10 @@ shopt -s expand_aliases
 
 bashrc.real ()
 {
-  if [ -z "${BASHRC_DIR}" ]
-  then d=$(grealpath ${HOME}/.bashrc); BASHRC_DIR="${d%/*}";
+  if [ -z "${BASHRC_HOME:-}" ]
+  then d=$(grealpath ${HOME}/.bashrc); BASHRC_HOME="${d%/*}";
   fi
-  echo "${BASHRC_DIR}"
+  echo "${BASHRC_HOME}"
 }
 
 bashrc.home ()
@@ -35,7 +36,7 @@ bashrc.home ()
 
 bashrc.local ()
 {
-  local d="${HOME}/.config/environment";
+  local d="${BASHRC_LOCAL}"
   local v; for v in "$@"; do d="${d}/${v}"; done
   echo "${d}"
 }
@@ -109,6 +110,6 @@ if is_brewed; then
   bashrc.load lib rvm
 
   bashrc.load etc end
-else echo "Please run brew coreutils before continuing"
+else echo "Please install brew coreutils before continuing"
 fi
 
