@@ -30,7 +30,6 @@ bashrc.home ()
 {
   local d="$(bashrc.real)";
   local v; for v in ".." "$@"; do d="${d}/${v}"; done
-  d=$(greadlink -m "${d}")
   echo "${d}"
 }
 
