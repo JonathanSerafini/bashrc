@@ -1,0 +1,87 @@
+#!/usr/bin/env ruby
+
+require "optparse"
+require "inifile"
+require "pp"
+
+#
+# Parse command line options
+#
+
+options = { 
+  list: false,
+  account: nil
+}
+
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: awsini [options] [account]"
+
+  opts.on("--list", "list available aws account credentials") do
+    options[:list] = true
+  end
+
+  opts.on("-a", "--account NAME", "activate aws account") do |name|
+    options[:account] = name
+  end
+
+  opts.on_tail("-h", "--help", "display help") do
+    puts opts
+    exit
+  end
+end.parse!
+
+account = ARGV.pop
+options[:account] ||= account
+
+#
+# Load configuration file
+#
+
+cfg = IniFile.load("#{ENV["HOME"]}/.aws/credentials")
+
+#
+# Main
+#
+
+def list(cfg)
+  cfg.sections.each { |v| puts "- #{v}" }
+end
+
+def get(cfg, name)
+  defaults = {
+    "region" => "us-east-1"
+  }
+
+  acct = cfg[name]
+  acct = (acct.nil? or acct.empty?) ? nil : acct
+  acct = if acct and %w(aws_access_key_id aws_secret_access_key).
+                     any? {|s| acct[s].nil?}
+         then acct.nil?
+         else acct
+         end
+  acct = defaults.merge(acct) if acct
+  acct
+end
+
+def expand(name, acct)
+  puts "export AWS_PRODUCT='#{name}'"
+  puts "export AWS_ACCESS_KEY_ID='#{acct["aws_access_key_id"]}'"
+  puts "export AWS_SECRET_ACCESS_KEY='#{acct["aws_secret_access_key"]}'"
+  puts "export AWS_REGION='#{acct["region"]}'"
+end
+
+if options[:list] or options[:account].nil?
+  list(cfg)
+end
+
+if options[:account]
+  acct = get(cfg, options[:account])
+
+  if acct.nil?
+    puts "Account not found"
+    exit 1
+  else
+    expand(options[:account], acct)
+  end
+end
+
