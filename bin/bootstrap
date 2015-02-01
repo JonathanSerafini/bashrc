@@ -23,4 +23,6 @@ have_brew_app "ec2-cmd" || {
 }
 have_brew_app "tree" || brew install tree
 
+gem install "bundler"
+gem install "inifile"
 gem install "pry"
