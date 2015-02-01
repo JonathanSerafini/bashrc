@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+
+DEBUG=true
+
+BREW_BASE="/usr/local/bin"
+BASHRC_DIR=""
+
+#
+# Core bash settings
+#
+
+set -o errtrace
+set -o functrace
+shopt -s expand_aliases
+
+#
+# Bootstrap functions
+#
+
+bashrc.real ()
+{
+  if [ -z "${BASHRC_DIR}" ]
+  then d=$(grealpath ${HOME}/.bashrc); BASHRC_DIR="${d%/*}";
+  fi
+  echo "${BASHRC_DIR}"
+}
+
+bashrc.home ()
+{
+  local d="$(bashrc.real)";
+  local v; for v in ".." "$@"; do d="${d}/${v}"; done
+  d=$(greadlink -m "${d}")
+  echo "${d}"
+}
+
+bashrc.local ()
+{
+  local d="${HOME}/.config/environment";
+  local v; for v in "$@"; do d="${d}/${v}"; done
+  echo "${d}"
+}
+
+bashrc.eval ()
+{
+  if [ -f "$(bashrc.local ${@})" ] || [ -L "$(bashrc.local ${@})" ]
+  then echo "$(bashrc.local ${@})"
+  else echo "$(bashrc.home ${@})"
+  fi
+}
+
+bashrc.items ()
+{
+  local x; for x in $(bashrc.local ${@})/* $(bashrc.home ${@})/*
+  do [ "${x##*/}" == "*" ] && continue
+     bashrc.eval ${@} ${x##*/}
+  done
+}
+
+bashrc.load ()
+{ 
+  source $(bashrc.eval "$1" "$2"); 
+}
+
+#
+# Detection functions
+#
+
+is_osx ()
+{
+  if [ "${_system_name:-}" == "OSX" ]
+  then return 0
+  else return 1
+  fi
+}
+
+is_ssh ()
+{
+  if [ -n "${SSH_TTYL:-}" ]
+  then return 0
+  else return 1
+  fi
+}
+
+is_brewed ()
+{
+  for x in grealpath gln
+  do [ ! -e "${BREW_BASE}/${x}" ] && return 1
+  done; return 0
+}
+
+#
+# Load libraries
+#
+
+if is_brewed; then
+  bashrc.load lib colors
+  bashrc.load lib init
+  bashrc.load lib path
+
+  bashrc.load etc alias
+  bashrc.load etc env
+  bashrc.load etc path
+  bashrc.load etc sshagent
+  bashrc.load etc prompt
+
+  bashrc.load lib prompt
+  bashrc.load lib completion
+  bashrc.load lib dotfiles
+  bashrc.load lib rvm
+
+  bashrc.load etc end
+else echo "Please run brew coreutils before continuing"
+fi
+

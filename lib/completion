@@ -1,0 +1,16 @@
+
+bashrc.install_completion ()
+{
+  set +u
+  if [ -f /etc/bash_completion ]
+  then source /etc/bash_completion
+  fi
+  
+  local f; for f in $(bashrc.items share completion.d)
+           do source $f
+           done
+  set -u
+}
+
+bashrc.install_completion
+

@@ -1,0 +1,12 @@
+
+# Enable smart history search 
+"\e[A":history-search-backward
+"\e[B":history-search-forward
+
+# Ignore case
+set completion-ignore-case on
+
+# Ctrl+Shift arrow movement
+"\e[1;6D":backward-word
+"\e[1;6C":forward-word
+

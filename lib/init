@@ -1,0 +1,11 @@
+
+error ()
+{
+  echo "${@}" >&2
+}
+
+debug ()
+{
+  ${DEBUG:-false} && error "${@}"
+}
+

@@ -1,0 +1,15 @@
+
+_ssh_config_hosts () {
+  grep '^\s*Host ' ~/.ssh/config |
+    sed -e 's@\s*Host @@'
+}
+
+_ssh_hosts () {
+  config_hosts=$(_ssh_config_hosts)
+  echo $config_hosts
+}
+
+complete -o default -W "$(_ssh_hosts)" ssh
+complete -o default -W "$(_ssh_hosts)" sftp
+complete -o default -W "$(_ssh_hosts)" scp
+

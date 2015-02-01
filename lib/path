@@ -1,0 +1,25 @@
+
+path.contains ()
+{
+  if [[ "${2}" =~ (^|:)$1(:|$) ]]
+  then return 0
+  else return 1
+  fi
+}
+
+path.append ()
+{
+  if ! path.contains "${1}" "${2}"
+  then echo "${2}:${1}"
+  else echo "${2}"
+  fi
+}
+
+path.prepend ()
+{
+  if ! path.contains "${1}" "${2}"
+  then echo "${1}:${2}"
+  else echo "${2}"
+  fi
+}
+
