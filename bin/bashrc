@@ -3,7 +3,7 @@
 DEBUG=false
 
 BREW_BASE="/usr/local/bin"
-BASHRC_LOCAL="${HOME}/.config/environment"
+BASHRC_LOCAL="${HOME}/.config/bashrc"
 BASHRC_HOME=""
 
 #
