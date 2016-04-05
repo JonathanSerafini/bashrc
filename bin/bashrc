@@ -126,7 +126,7 @@ if bashrc.is_brewed; then
   bashrc.load lib prompt
   bashrc.load lib completion
   bashrc.load lib dotfiles
-  bashrc.load lib rvm
+  bashrc.load lib rbenv
   bashrc.load lib resty
 
   bashrc.load etc end
