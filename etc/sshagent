@@ -3,13 +3,17 @@
 # SSH : Ensure agent socket gets created within ~/.ssh/agent
 #
 
-if ! is_osx
+if ! bashrc.is_osx
 then 
   SSH_AUTH_SOCK=~/.ssh/agent/socket
   export SSH_AUTH_SOCK
 
   if [ ! -d ~/.ssh/agent ]
   then mkdir -p ~/.ssh/agent
+  fi
+
+  if [ ! -f ~/.ssh/config ]
+  then touch ~/.ssh/config
   fi
 
   if [ ! -S $SSH_AUTH_SOCK ]

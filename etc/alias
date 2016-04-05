@@ -11,12 +11,36 @@ alias cd..='cd ..'
 # Path information
 #
 
-if is_osx
+if [ -f "/usr/local/bin/gls" ]
 then alias ls='/usr/local/bin/gls --color -h --group-directories-first'
 else alias ls='ls --color -h --group-directories-first'
 fi
 
 alias ll='ls -l'
 alias la='ls -Al'
+
 alias lt='tree -C --dirsfirst'
+alias lt1='tree -C --dirsfirst -L 1'
+alias lt2='tree -C --dirsfirst -L 2'
+
+#
+# Customizations
+#
+
+alias grep='grep --color'
+
+alias binless=$(which less)
+alias bincat=$(which cat)
+
+alias less=/usr/local/bin/vimpager
+alias cat=/usr/local/bin/vimcat
+
+alias flow='git flow'
+
+#
+# Helpers
+#
+
+alias mkdir='mkdir -p'
+alias be='bundle exec'
 

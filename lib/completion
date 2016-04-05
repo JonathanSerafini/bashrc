@@ -6,7 +6,7 @@ bashrc.install_completion ()
   then source /etc/bash_completion
   fi
   
-  local f; for f in $(bashrc.items share completion.d)
+  local f; for f in $(bashrc.list share completion.d)
            do source $f
            done
   set -u

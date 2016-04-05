@@ -14,66 +14,76 @@ set -o errtrace
 set -o functrace
 shopt -s expand_aliases
 
-#
-# Bootstrap functions
-#
+##
+## Bootstrap functions
+##
 
-bashrc.real ()
+# Detect bashrc repository absolute path
+bashrc.repo.base ()
 {
   if [ -z "${BASHRC_HOME:-}" ]
-  then d=$(grealpath ${HOME}/.bashrc); BASHRC_HOME="${d%/*}";
+  then d=$(bashrc.expand.path "${HOME}/.bashrc"); 
+       BASHRC_HOME="${d%/*/*}";
   fi
   echo "${BASHRC_HOME}"
 }
 
-bashrc.home ()
+# Expand path components to be relative to bashrc.repo.base
+bashrc.repo.path () # $@: path components to expand
 {
-  local d="$(bashrc.real)";
-  local v; for v in ".." "$@"; do d="${d}/${v}"; done
+  local d="$(bashrc.repo.base)"
+  local v; for v in "$@"; do d="${d}/${v}"; done
   echo "${d}"
 }
 
-bashrc.local ()
+# Expand path components to be relative to BASHRC_LOCAL
+bashrc.local.path () # $@: path components to expand
 {
   local d="${BASHRC_LOCAL}"
   local v; for v in "$@"; do d="${d}/${v}"; done
   echo "${d}"
 }
 
-bashrc.eval ()
+# Locate path components in either the local override or bashrc repository
+bashrc.locate () # $@: path components to expand
 {
-  if [ -f "$(bashrc.local ${@})" ] || [ -L "$(bashrc.local ${@})" ]
-  then echo "$(bashrc.local ${@})"
-  else echo "$(bashrc.home ${@})"
+  local local_path="$(bashrc.local.path "${@}")"
+  if [ -f "${local_path}" ] || [ -L "${local_path}" ]
+  then echo "${local_path}"
+  else echo "$(bashrc.repo.path "${@}")"
   fi
 }
 
-bashrc.items ()
+# Iterate over all configuration paths, returning a list of file paths
+bashrc.list () # $@: path components to expand
 {
-  local x; for x in $(bashrc.local ${@})/* $(bashrc.home ${@})/*
+  local x; for x in $(bashrc.local.path ${@})/* $(bashrc.repo.path ${@})/*
   do [ "${x##*/}" == "*" ] && continue
-     bashrc.eval ${@} ${x##*/}
+     bashrc.locate ${@} ${x##*/}
   done
 }
 
-bashrc.load ()
+# Load a file located in a directory
+bashrc.load () # $1: directory to load from, $2: file to load
 { 
-  source $(bashrc.eval "$1" "$2"); 
+  source $(bashrc.locate "$1" "$2"); 
 }
 
 #
 # Detection functions
 #
 
-is_osx ()
+# Detect whether this is OSX
+bashrc.is_osx ()
 {
-  if [ "${_system_name:-}" == "OSX" ]
+  if [ -d "/Volumes" ]
   then return 0
   else return 1
   fi
 }
 
-is_ssh ()
+# Detect whether we are within a SSH shell
+bashrc.is_ssh ()
 {
   if [ -n "${SSH_TTYL:-}" ]
   then return 0
@@ -81,18 +91,28 @@ is_ssh ()
   fi
 }
 
-is_brewed ()
+# Detect if homebrew has installed coreutils
+bashrc.is_brewed ()
 {
-  for x in grealpath gln
-  do [ ! -e "${BREW_BASE}/${x}" ] && return 1
-  done; return 0
+  bashrc.is_osx || return 0
+  [ ! -e "${BREW_BASE}/grealpath" ] && return 1
+  return 0
+}
+
+# Abstract symlink expansion for Linux and OSX support
+bashrc.expand.path () # $@: path components to expand
+{
+  if bashrc.is_osx
+  then ${BREW_BASE}/grealpath "$@"
+  else readlink -f "$@"
+  fi
 }
 
 #
 # Load libraries
 #
 
-if is_brewed; then
+if bashrc.is_brewed; then
   bashrc.load lib colors
   bashrc.load lib init
   bashrc.load lib path
@@ -107,8 +127,11 @@ if is_brewed; then
   bashrc.load lib completion
   bashrc.load lib dotfiles
   bashrc.load lib rvm
+  bashrc.load lib resty
 
   bashrc.load etc end
-else echo "Please install brew coreutils before continuing"
+else echo "Please 'brew install coreutils' before continuing"
 fi
+
+set +u
 

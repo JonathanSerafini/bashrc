@@ -1,8 +1,8 @@
 
 PATH=$(path.prepend "/usr/local/opt/coreutils/libexec/gnubin" "$PATH")
-PATH=$(path.prepend "$(bashrc.home bin)" "$PATH")
-PATH=$(path.prepend "$(bashrc.local bin)" "$PATH")
-PATH=$(path.prepend "${HOME}/.rvm/bin" "$PATH")
+PATH=$(path.prepend "~/.rbenv/bin" "$PATH")
+PATH=$(path.prepend "$(bashrc.repo.path bin)" "$PATH")
+PATH=$(path.prepend "$(bashrc.local.path bin)" "$PATH")
 
 export PATH
 

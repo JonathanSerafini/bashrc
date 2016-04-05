@@ -1,0 +1,8 @@
+
+bashrc.install_rvm ()
+{
+  eval "$(/usr/local/bin/rbenv init - --no-rehash)"
+}
+
+bashrc.install_rvm
+

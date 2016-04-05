@@ -40,6 +40,10 @@ prompt_set_content ()
     if [ "${SHLVL:-1}" -gt 1 ]
     then shlvl=":${PROMPT_COLOR_OTHER}$SHLVL${txtrst}"
     fi
+    
+    if [ -n "${AWS_PROFILE:-}" ]
+    then shlvl=":${txtred}${AWS_PROFILE:-}${txtrst}"
+    fi
 
     PS1="${txtrst} : ${PROMPT_COLOR_HOST}\h${txtrst}${shlvl}"
     PS1+=":${PROMPT_COLOR_PWD}${PWD}${txtrst}${branch} : "

@@ -2,7 +2,7 @@
 # 
 # Ensure the proper terminal type
 #
-if is_ssh
+if bashrc.is_ssh
 then export TERM=xterm-256color
 else export TERM=xterm
 fi
@@ -10,13 +10,15 @@ fi
 #
 # Define default applications
 #
-export PAGER=less
+#export PAGER=less
+export PAGER=vimpager
 export EDITOR=vim
 export VISUAL=vim
 
 #
 # Configure bash history
 #
+export HISTCONTROL=ignoredups # Ignore duplicates not ^\s
 export HISTIGNORE="&:exit:clear"
 export HISTSIZE=5000
 export HISTTIMEFORMAT="%Y-%m-%d.%H:%M:%S :: "
