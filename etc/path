@@ -1,15 +1,24 @@
 
-# Prepend coreutils to standard path
-PATH=$(path.prepend "/usr/local/opt/coreutils/libexec/gnubin" "$PATH")
+# Prepend local override supplied scripts
+PATH=$(path.prepend "$(bashrc.local.path bin)" "$PATH")
 
 # Prepend rbenv to standard path
 PATH=$(path.prepend "~/.rbenv/bin" "$PATH")
 
+# Prepend coreutils to standard path
+PATH=$(path.prepend "${HOMEBREW_PREFIX}/opt/coreutils/libexec/gnubin" "$PATH")
+
+# Prepend homebrew to standard path
+PATH=$(path.prepend "${HOMEBREW_PREFIX}/bin" "$PATH")
+
+# Prepend homebrew to standard path
+PATH=$(path.prepend "/usr/local/bin" "$PATH")
+
 # Prepend bashrc supplied scripts
 PATH=$(path.prepend "$(bashrc.repo.path bin)" "$PATH")
 
-# Prepend local override supplied scripts
-PATH=$(path.prepend "$(bashrc.local.path bin)" "$PATH")
+# Append nodejs to standard path
+PATH=$(path.append "~/.npm-packages/bin" "$PATH")
 
 export PATH
 

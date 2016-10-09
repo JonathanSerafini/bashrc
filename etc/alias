@@ -11,8 +11,8 @@ alias cd..='cd ..'
 # Path information
 #
 
-if [ -f "/usr/local/bin/gls" ]
-then alias ls='/usr/local/bin/gls --color -h --group-directories-first'
+if [ -f "${HOMEBREW_PREFIX}/bin/gls" ]
+then alias ls="${HOMEBREW_PREFIX}/bin/gls --color -h --group-directories-first"
 else alias ls='ls --color -h --group-directories-first'
 fi
 
@@ -32,10 +32,13 @@ alias grep='grep --color'
 alias binless=$(which less)
 alias bincat=$(which cat)
 
-alias less=/usr/local/bin/vimpager
-alias cat=/usr/local/bin/vimcat
+alias less=${HOMEBREW_PREFIX}/bin/vimpager
+alias cat=${HOMEBREW_PREFIX}/bin/vimcat
 
 alias flow='git flow'
+
+alias vim='nvim'
+alias vi='nvim'
 
 #
 # Helpers

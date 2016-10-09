@@ -1,6 +1,7 @@
 [user]
   email = jonathan@serafini.ca
   name = Jonathan Serafini
+	signingkey = 7B6A19DF190C345A
 
 [core]
   editor = vim
@@ -36,8 +37,11 @@
   co = checkout
   ap = add --patch
   st = status
-  ci = commit -v
+  ci = commit -S -v
+  tg = tag -s
 
+[commit]
+	gpgsign = true
 
 [push]
   default = simple
@@ -55,3 +59,5 @@
 [pager]
 	diff = diff-so-fancy | less --tabs=1,2 -RFX
 	show = diff-so-fancy | less --tabs=1,2 -RFX
+[gpg]
+	program = /usr/local/MacGPG2/bin/gpg2
