@@ -39,6 +39,7 @@
   st = status
   ci = commit -S -v
   tg = tag -s
+  info = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset %C(cyan)(%an)%Creset' --abbrev-commit --date=relative -20
 
 [commit]
 	gpgsign = true
