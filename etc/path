@@ -20,5 +20,8 @@ PATH=$(path.prepend "$(bashrc.repo.path bin)" "$PATH")
 # Append nodejs to standard path
 PATH=$(path.append "~/.npm-packages/bin" "$PATH")
 
+# Append nodejs to standard path
+PATH=$(path.append "${HOMEBREW_PREFIX}/Cellar/node4-lts/4.6.0/bin/" "$PATH")
+
 export PATH
 
