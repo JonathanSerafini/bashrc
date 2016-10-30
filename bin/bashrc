@@ -128,6 +128,7 @@ if bashrc.is_brewed; then
   bashrc.load lib dotfiles
   bashrc.load lib rbenv
   bashrc.load lib resty
+  bashrc.load lib awscreds
 
   bashrc.load etc end
 else echo "Please 'brew install coreutils' before continuing"

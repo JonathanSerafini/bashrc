@@ -46,4 +46,4 @@ alias vi='nvim'
 
 alias mkdir='mkdir -p'
 alias be='bundle exec'
-
+alias gi='git info'
