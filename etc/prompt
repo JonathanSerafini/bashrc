@@ -1,10 +1,221 @@
+bashrc.prompt.truncate_str ()
+{
+    local pwdlen=${PROMPT_PWDLEN}
+    local dir=${1##*/}
 
-BASHRC_PROMPT_DELIM=:
-BASHRC_PROMPT_PWDMAXLEN=25
-BASHRC_PROMPT_WITH_GIT=true
-BASHRC_PROMPT_WITH_TRUNCATE=true
-BASHRC_PROMPT_COLOR_HOST=$bldpur
-BASHRC_PROMPT_COLOR_PWD=$txtrst
-BASHRC_PROMPT_COLOR_OTHER=$txtgrn
-BASHRC_PROMPT_COLOR_STRUCT=$txtrst
+    if [ ${PROMPT_PWDLEN} -lt ${#dir} ]
+    then pwdlen=${#dir}
+    fi
 
+    local NEW_STR=${1/#$HOME/\~}
+    local pwdoffset=$(( ${#NEW_STR} - pwdlen ))
+
+    if [ ${pwdoffset} -gt "0" ]
+    then
+        NEW_STR=${NEW_STR:$pwdoffset:$pwdlen}
+        NEW_STR=../${NEW_STR#*/}
+    fi
+
+    echo "${NEW_STR}"
+}
+
+__git_eread ()
+{
+  test -r "$1" && IFS=$'\r\n' read "$2" <"$1"
+}
+
+bashrc.prompt.git.eval ()
+{
+  #
+  # Define non-local variables we will bubble up
+  #
+  git_project=""
+  git_branch=""
+  git_short_sha=""
+  git_is_clean=true
+  git_has_uncommitted=false
+  git_has_unstaged=false
+  git_has_stashed=false
+  git_has_untracked=false
+
+  #
+  # Detect repository details
+  #
+  local repo_info="$(git rev-parse \
+    --git-dir \
+    --is-inside-git-dir \
+    --is-inside-work-tree \
+    --short HEAD \
+    2>/dev/null)"
+  local rev_parse_exit_code="${?}"
+
+  if [ ! -n "${repo_info}" ]; then
+    return 1
+  fi
+
+  if [ "${rev_parse_exit_code}" = "0" ]; then
+    git_short_sha="${repo_info##*$'\n'}"
+    repo_info="${repo_info%$'\n'*}"
+  fi
+
+  local inside_worktree="${repo_info##*$'\n'}"
+  repo_info="${repo_info%$'\n'*}"
+
+  local inside_gitdir="${repo_info##*$'\n'}"
+  repo_info="${repo_info%$'\n'*}"
+
+  local g="${repo_info%$'\n'*}"
+
+  pushd "${g}/.." > /dev/null
+  git_project=$(basename "${PWD}")
+  popd > /dev/null
+
+  #
+  # Detect head/branch status
+  #
+  local r=""
+  local step=""
+  local total=""
+  if [ -d "$g/rebase-merge" ]; then
+    __git_eread "$g/rebase-merge/head-name" git_branch
+    __git_eread "$g/rebase-merge/msgnum" step
+    __git_eread "$g/rebase-merge/end" total
+    if [ -f "$g/rebase-merge/interactive" ]; then
+      r="|REBASE-i"
+    else
+      r="|REBASE-m"
+    fi
+  else
+    if [ -d "$g/rebase-apply" ]; then
+      __git_eread "$g/rebase-apply/next" step
+      __git_eread "$g/rebase-apply/last" total
+      if [ -f "$g/rebase-apply/rebasing" ]; then
+        __git_eread "$g/rebase-apply/head-name" git_branch
+        r="|REBASE"
+      elif [ -f "$g/rebase-apply/applying" ]; then
+        r="|AM"
+      else
+        r="|AM/REBASE"
+      fi
+    elif [ -f "$g/MERGE_HEAD" ]; then
+      r="|MERGING"
+    elif [ -f "$g/CHERRY_PICK_HEAD" ]; then
+      r="|CHERRY-PICKING"
+    elif [ -f "$g/REVERT_HEAD" ]; then
+      r="|REVERTING"
+    elif [ -f "$g/BISECT_LOG" ]; then
+      r="|BISECTING"
+    fi
+
+    if [ -n "${git_branch}" ]; then
+      :
+    elif [ -h "$g/HEAD" ]; then
+      # symlink symbolic ref
+      git_branch="$(git symbolic-ref HEAD 2>/dev/null)"
+    else
+      local head=""
+      if ! __git_eread "$g/HEAD" head; then
+        return 1
+      fi
+      # is it a symbolic ref?
+      git_branch="${head#ref: }"
+      if [ "$head" = "${git_branch}" ]; then
+        git_branch="$(
+        case "${GIT_PS1_DESCRIBE_STYLE-}" in
+        (contains)
+          git describe --contains HEAD ;;
+        (branch)
+          git describe --contains --all HEAD ;;
+        (tag)
+          git describe --tags HEAD ;;
+        (describe)
+          git describe HEAD ;;
+        (* | default)
+          git describe --tags --exact-match HEAD ;;
+        esac 2>/dev/null)" ||
+
+        git_branch="${git_short_sha}"
+      fi
+    fi
+  fi
+
+  if [ -n "$step" ] && [ -n "$total" ]; then
+    r="$r $step/$total"
+  fi
+
+  if [ "true" = "$inside_gitdir" ]; then
+    git_branch="GIT_DIR!"
+  elif [ "true" = "$inside_worktree" ]; then
+    git diff --no-ext-diff --quiet || git_has_unstaged=true
+    git diff --no-ext-diff --cached --quiet || git_has_uncommitted=true
+    git rev-parse --verify --quiet refs/stash >/dev/null && git_has_stashed=true
+    git ls-files --others --exclude-standard \
+      --directory --no-empty-directory \
+      --error-unmatch -- ':/*' \
+      >/dev/null 2>/dev/null && git_has_untracked=true
+
+    ${git_has_unstaged} || ${git_has_uncommitted} || ${git_has_untracked} &&
+      git_is_clean=false
+  fi
+
+  git_branch=${git_branch##refs/heads/}
+}
+
+bashrc.prompt.set ()
+{
+  # Last exit status
+  local EXIT_CODE="$?"
+
+  # Color codes
+  local BLK='\[\e[0;30m\]' # Black - Regular
+  local RED='\[\e[0;31m\]' # Red
+  local GRN='\[\e[0;32m\]' # Green
+  local YLW='\[\e[0;33m\]' # Yellow
+  local BLU='\[\e[0;34m\]' # Blue
+  local PUR='\[\e[0;35m\]' # Purple
+  local CYN='\[\e[0;36m\]' # Cyan
+  local WHT='\[\e[0;37m\]' # White
+  local RST='\[\e[0m\]'    # Text Reset
+
+  local PROMPT_PWDLEN=25
+
+  local git_project
+  local git_branch
+  local git_short_sha
+  local git_is_clean
+  local git_has_uncommitted
+  local git_has_unstaged
+  local git_has_stashed
+  local git_has_untracked
+  bashrc.prompt.git.eval
+
+  local PROMPT_PWD=$(bashrc.prompt.truncate_str "${PWD}")
+  if [ -n "${git_project}" ]; then
+    local PROMPT_PWD="${git_project}"
+  fi
+
+  if [ -n "${git_branch}" ]; then
+    local GIT_BRANCH=$(bashrc.prompt.truncate_str "${git_branch}")
+  fi
+
+  PS1="${RST}❯${BLK}\h${RST}"
+  PS1+="❯${GRN}${PROMPT_PWD}${RST}"
+  if [ -n "${GIT_BRANCH}" ]; then
+    PS1+="❯${BLK}${GIT_BRANCH}${RST}"
+    ${git_has_untracked} && PS1+="${CYN}+${RST}"
+    ${git_has_uncommitted} && PS1+="${GRN}+${RST}"
+    ${git_has_unstaged} && PS1+="${RED}+${RST}"
+  fi
+
+  if [ "${EXIT_CODE}" -gt 0 ]; then
+    PS1+="${RED}"
+  fi
+
+  PS1+="❯${RST} "
+
+  export PS1
+}
+
+export PROMPT_COMMAND=bashrc.prompt.set
+
+# vim: set ft=sh ts=2 sw=2 et :

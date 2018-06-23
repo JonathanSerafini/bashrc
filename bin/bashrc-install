@@ -1,0 +1,35 @@
+#!/bin/bash
+
+source $(dirname ${0})/../bashrc
+
+exists ()
+{
+  if [ -e "${1}" ] || [ -L ".${1}" ]
+  then return 0
+  else return 1
+  fi
+}
+
+symlink ()
+{
+  for srcdir in ${BASHRC_LOCAL_PATH} ${BASHRC_REPO_PATH}; do
+    local srcpath="${srcdir}/${1}"
+
+    if exists "${srcpath}"; then
+      log.info " - .${2}"
+      ln -sf "${srcpath}" ${HOME}/.${2}
+      break
+    fi
+  done
+}
+
+log.info "Linking dotfiles"
+
+symlink dotfiles/gitconfig gitconfig
+symlink dotfiles/gitignore gitignore
+symlink dotfiles/inputrc inputrc
+symlink dotfiles/mostrc mostrc
+
+symlink bashrc bashrc
+symlink bashrc bash_profile
+symlink bashrc profile

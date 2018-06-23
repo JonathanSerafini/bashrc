@@ -1,0 +1,34 @@
+##
+## UTILITY functions
+##
+
+log       ()  { printf "$*\n"; }
+log.data  ()  { log "      $@"; }
+log.debug ()  { ${DEBUG:-false} && log "\033[90mdebug\033[0m $@" >&2; }
+log.error ()  { log "\033[31merror\033[0m $@" >&2; }
+log.info  ()  { log "\033[34minfo\033[0m  $@"; }
+log.warn  ()  { log "\033[33mwarn\033[0m  $@" >&2; }
+
+path.contains ()
+{
+  if [[ "${2:-${PATH}}" =~ (^|:)$1(:|$) ]]
+  then return 0
+  else return 1
+  fi
+}
+
+path.append ()
+{
+  if ! path.contains "${1}" "${2:-}"
+  then PATH="${PATH}:${1}"
+  fi
+}
+
+path.prepend ()
+{
+  if ! path.contains "${1}" "${2:-}"
+  then PATH="${1}:${PATH}"
+  fi
+}
+
+# vim: set ft=sh ts=2 sw=2 et :

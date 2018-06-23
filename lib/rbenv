@@ -1,8 +1,0 @@
-
-bashrc.install_rvm ()
-{
-  eval "$(${HOMEBREW_PREFIX}/bin/rbenv init - --no-rehash)"
-}
-
-bashrc.install_rvm
-

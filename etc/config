@@ -1,0 +1,101 @@
+##
+## PATH definition
+##
+if [ -n "${HOMEBREW_PREFIX:-} " ]; then
+  path.prepend "${HOMEBREW_PREFIX}/opt/coreutils/libexec/gnubin"
+  path.prepend "${HOMEBREW_PREFIX}/bin"
+fi
+
+path.prepend "/usr/local/bin"
+path.prepend "${BASHRC_REPO_PATH}/bin"
+path.prepend "${BASHRC_LOCAL_PATH}/bin"
+
+##
+## ALIAS definitions
+##
+
+# Path traversal
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# Path listing
+if [ -f "${HOMEBREW_PREFIX:-}/bin/gls" ]
+then alias ls="${HOMEBREW_PREFIX:-}/bin/gls --color -h --group-directories-first"
+else alias ls='ls --color -h --group-directories-first'
+fi
+
+alias ll='ls -l'
+alias la='ls -Al'
+
+alias lt='tree -C --dirsfirst'
+alias lt1='tree -C --dirsfirst -L 1'
+alias lt2='tree -C --dirsfirst -L 2'
+alias lt3='tree -C --dirsfirst -L 3'
+alias lt4='tree -C --dirsfirst -L 4'
+
+alias grep='grep --color'
+alias less=${HOMEBREW_PREFIX}/bin/vimpager
+alias cat=${HOMEBREW_PREFIX}/bin/vimcat
+alias diff=${HOMEBREW_PREFIX}/bin/colordiff
+
+alias mkdir='mkdir -p'
+
+alias vim='nvim'
+alias vi='nvim'
+
+##
+## SHELL behaviour
+##
+
+export PAGER=vimpager
+export EDITOR=vim
+export VISUAL=vim
+
+# Check window size after each command and set LINES and COLUMNS
+shopt -s checkwinsize
+
+##
+## Colors
+##
+
+# Colorize man pages
+export LESS_TERMCAP_mb=$'\E[01;35m'
+export LESS_TERMCAP_md=$'\E[01;35m'
+export LESS_TERMCAP_me=$'\E[0m'
+export LESS_TERMCAP_se=$'\E[0m'
+export LESS_TERMCAP_so=$'\E[01;33m'
+export LESS_TERMCAP_ue=$'\E[0m'
+export LESS_TERMCAP_us=$'\E[01;32m'
+
+##
+## COMPLETION
+##
+
+if [ -f "${HOMEBREW_PREFIX:-}/share/bash-completion/bash_completion" ]; then
+  source "${HOMEBREW_PREFIX:-}/share/bash-completion/bash_completion"
+fi
+
+# Do not attempt auto-complete on empty line
+shopt -s no_empty_cmd_completion
+
+##
+## HISTORY
+##
+
+export HISTCONTROL=ignoredups # Ignore duplicates not ^\s
+export HISTIGNORE="&:history:ls:exit:clear"
+export HISTSIZE=5000
+export HISTFILESIZE=50000
+export HISTTIMEFORMAT="%Y-%m-%d.%H:%M:%S :: "
+
+# Merge multi-line commands into single history entry
+shopt -s cmdhist
+shopt -s histappend
+
+##
+## PROMPT
+##
+
+
+
+# vim: set ft=sh ts=2 sw=2 et :

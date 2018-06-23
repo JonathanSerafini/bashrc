@@ -1,0 +1,108 @@
+[user]
+  email = jonathan@serafini.ca
+  name = Jonathan Serafini
+  signingkey = 523C48A300B21C4D
+
+[core]
+  editor = vim
+  pager = less -FRSX
+  whitespace=fix,-indent-with-non-tab,trailing-space,cr-at-eol
+  trustctime = false
+
+[color]
+  ui = true
+
+[color "branch"]
+  current = cyan
+  local = blue
+  remote = magenta
+  upstream = magenta
+  plain = normal
+
+[color "decorate"]
+  branch = blue
+  remoteBranch = magenta
+  tag = magenta
+  stash = cyan
+  HEAD = blue
+
+[color "diff"]
+  meta = red bold
+  frag = black bold
+  func = blue
+  old = red strike
+  new = green
+  commit = blue
+  whitespace = red
+  context = normal
+
+[color "diff-highlight"]
+  oldNormal = red
+  oldHighlight = red
+  newNormal = green
+  newHighlight = green
+
+[color "grep"]
+  context = normal
+  match = cyan
+  filename = blue
+  function = blue
+  selected = normal
+  separator = red bold
+  linenumber = normal
+
+[color "interactive"]
+  prompt = red
+  header = red bold
+  error = red
+  help = black bold
+
+[color "status"]
+  header = black bold
+  branch = cyan
+  nobranch = red
+  unmerged = red
+  untracked = cyan
+  added = green
+  changed = red bold
+
+[diff-so-fancy]
+  markEmptyLines = false
+
+[alias]
+  ap = add --patch
+  ci = commit -S -v
+  co = checkout
+  cp = cherry-pick
+  st = status
+  tg = tag -s
+  info = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset %C(cyan)(%an)%Creset' --abbrev-commit --date=relative -20
+  patch = !git --no-pager diff --no-color
+  upd = pull --rebase origin master
+
+[commit]
+  gpgsign = true
+
+[push]
+  default = simple
+
+[diff "ansible-vault"]
+  textconv = ansible-vault view
+  cachetextconv = true
+
+[filter "media"]
+  required = true
+  clean = git media clean %f
+  smudge = git media smudge %f
+
+[filter "lfs"]
+  clean = git lfs clean %f
+  smudge = git lfs smudge %f
+  required = true
+
+[pager]
+  diff = diff-so-fancy | less --tabs=1,2 -RFX
+  show = diff-so-fancy | less --tabs=1,2 -RFX
+
+[gpg]
+  program = /usr/local/MacGPG2/bin/gpg2
