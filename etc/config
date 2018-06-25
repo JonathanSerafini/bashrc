@@ -2,13 +2,13 @@
 ## PATH definition
 ##
 if [ -n "${HOMEBREW_PREFIX:-} " ]; then
-  path.prepend "${HOMEBREW_PREFIX}/opt/coreutils/libexec/gnubin"
-  path.prepend "${HOMEBREW_PREFIX}/bin"
+  path.prepend PATH "${HOMEBREW_PREFIX}/opt/coreutils/libexec/gnubin"
+  path.prepend PATH "${HOMEBREW_PREFIX}/bin"
 fi
 
-path.prepend "/usr/local/bin"
-path.prepend "${BASHRC_REPO_PATH}/bin"
-path.prepend "${BASHRC_LOCAL_PATH}/bin"
+path.prepend PATH "/usr/local/bin"
+path.prepend PATH "${BASHRC_REPO_PATH}/bin"
+path.prepend PATH "${BASHRC_LOCAL_PATH}/bin"
 
 ##
 ## ALIAS definitions

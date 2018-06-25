@@ -11,7 +11,7 @@ log.warn  ()  { log "\033[33mwarn\033[0m  $@" >&2; }
 
 path.contains ()
 {
-  if [[ "${2:-${PATH}}" =~ (^|:)$1(:|$) ]]
+  if [[ "${!1}" =~ (^|:)$2(:|$) ]]
   then return 0
   else return 1
   fi
@@ -19,15 +19,15 @@ path.contains ()
 
 path.append ()
 {
-  if ! path.contains "${1}" "${2:-}"
-  then PATH="${PATH}:${1}"
+  if ! path.contains "${1}" "${2}"
+  then declare -g -x "${1}=${!1}:${2}"
   fi
 }
 
 path.prepend ()
 {
-  if ! path.contains "${1}" "${2:-}"
-  then PATH="${1}:${PATH}"
+  if ! path.contains "${1}" "${2}"
+  then declare -g -x "${1}=${2}:${!1}"
   fi
 }
 
