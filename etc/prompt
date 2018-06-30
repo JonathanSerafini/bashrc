@@ -189,19 +189,23 @@ bashrc.prompt.set ()
   local git_has_untracked
   bashrc.prompt.git.eval
 
-  local PROMPT_PWD=$(bashrc.prompt.truncate_str "${PWD}")
+  PS1="${RST}❯${BLK}\h${RST}"
+
   if [ -n "${git_project}" ]; then
-    local PROMPT_PWD="${git_project}"
+    PS1+="❯${GRN}${git_project}${RST}"
   fi
 
   if [ -n "${git_branch}" ]; then
-    local GIT_BRANCH=$(bashrc.prompt.truncate_str "${git_branch}")
+    local PROMPT_PWD=${PWD/*${git_project}/}
+    [ -n "${PROMPT_PWD}" ] && PROMPT_PWD="/$(basename ${PROMPT_PWD})"
+    PS1+="${PROMPT_PWD:-}${RST}"
+  else
+    local PROMPT_PWD=${PWD}
+    PS1+="❯$(bashrc.prompt.truncate_str "${PROMPT_PWD}")${RST}"
   fi
 
-  PS1="${RST}❯${BLK}\h${RST}"
-  PS1+="❯${GRN}${PROMPT_PWD}${RST}"
-  if [ -n "${GIT_BRANCH}" ]; then
-    PS1+="❯${BLK}${GIT_BRANCH}${RST}"
+  if [ -n "${git_branch}" ]; then
+    PS1+="❯${BLK}$(bashrc.prompt.truncate_str "${git_branch}")${RST}"
     ${git_has_untracked} && PS1+="${CYN}+${RST}"
     ${git_has_uncommitted} && PS1+="${GRN}+${RST}"
     ${git_has_unstaged} && PS1+="${RED}+${RST}"
